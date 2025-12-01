@@ -12,7 +12,12 @@ struct Response: Identifiable  {
     let text: String
     let score: Double
 
+    var sentiment: Sentiment {
+        Sentiment(score)
+    }
+
     static let sampleResponses: [String] = [
+        "I don't like AI!",
         "The future of AI makes me excited—let it handle repetitive tasks so developers can focus on creative problem-solving and product impact!",
         "I don't mind smarter tools, but relying on AI for core coding feels risky and could lead to fewer junior jobs.",
         "AI seems like a pretty good way to speed up code reviews and reduce boilerplate.",

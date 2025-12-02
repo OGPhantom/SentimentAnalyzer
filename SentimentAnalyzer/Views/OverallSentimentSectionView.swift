@@ -13,7 +13,7 @@ struct OverallSentimentSectionView: View {
         GroupBox {
             if let overall {
                 HStack {
-                    Label("Leaning \(overall.self.rawValue)", image: "hyphen")
+                    Label("Leaning \(overall.rawValue)", systemImage: "\(overall.icon)")
                         .font(.headline)
                         .foregroundStyle(overall.sentimentColor)
 
@@ -23,7 +23,7 @@ struct OverallSentimentSectionView: View {
                 }
                 .padding(.bottom)
 
-                HStack(spacing: 16) {
+                HStack(spacing: 14) {
                     SecntimentPill(sentiment: .positive, percentage: getPercentage(.positive))
 
                     SecntimentPill(sentiment: .moderate, percentage: getPercentage(.moderate))
@@ -32,12 +32,12 @@ struct OverallSentimentSectionView: View {
                 }
 
             } else {
-                Text("No resposes yet...")
+                Text("No responses yet...")
             }
         } label: {
             Label("Overall Sentiment", systemImage: "chart.pie.fill")
         }
-        .padding()
+        .padding(.horizontal)
 
     }
 }
@@ -102,7 +102,7 @@ private extension OverallSentimentSectionView {
     func getPercentage(_ sentiment: Sentiment) -> Int {
         guard !responses.isEmpty else { return 0 }
         let count = sentimentMap[sentiment, default: 0]
-        return Int(round( (Double(count) / Double(responses.count)) * 100))
+        return Int(round((Double(count) / Double(responses.count)) * 100))
     }
 }
 

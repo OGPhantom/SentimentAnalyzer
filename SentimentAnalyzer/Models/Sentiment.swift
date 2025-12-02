@@ -7,7 +7,7 @@
 import Charts
 import SwiftUI
 
-enum Sentiment: String, Plottable {
+enum Sentiment: String {
     case positive = "Positive"
     case negative = "Negative"
     case moderate = "Moderate"

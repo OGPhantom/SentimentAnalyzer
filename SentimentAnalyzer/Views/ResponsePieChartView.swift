@@ -10,22 +10,32 @@ import SwiftUI
 struct ResponsePieChartView: View {
     let responses: [Response]
 
-    init(responses: [Response]) {
-        self.responses = responses.sorted { $0.score < $1.score }
+    private var sentimentCounts: [(sentiment: Sentiment, count: Int)] {
+        let map = Dictionary(grouping: responses, by: \.sentiment)
+            .mapValues { $0.count }
+
+        return [
+            (.positive, map[.positive, default: 0]),
+            (.moderate, map[.moderate, default: 0]),
+            (.negative, map[.negative, default: 0])
+        ]
     }
 
     var body: some View {
-        Chart(responses) { response in
-            SectorMark(angle: .value("Type", response.score),innerRadius: .ratio(0.75))
-                .foregroundStyle(by: .value("sentiment", response.sentiment))
+        Chart(sentimentCounts, id: \.sentiment) { item in
+            SectorMark(
+                angle: .value("Count", item.count),
+                innerRadius: .ratio(0.75)
+            )
+            .foregroundStyle(by: .value("Sentiment", item.sentiment.rawValue))
         }
         .chartLegend(position: .trailing, alignment: .center)
         .frame(height: 200)
         .padding()
         .chartForegroundStyleScale([
-            Sentiment.positive: Sentiment.positive.sentimentColor,
-            Sentiment.negative: Sentiment.negative.sentimentColor,
-            Sentiment.moderate: Sentiment.moderate.sentimentColor
+            Sentiment.positive.rawValue: Sentiment.positive.sentimentColor,
+            Sentiment.moderate.rawValue: Sentiment.moderate.sentimentColor,
+            Sentiment.negative.rawValue: Sentiment.negative.sentimentColor
         ])
         .chartBackground { proxy in
             GeometryReader { geometry in

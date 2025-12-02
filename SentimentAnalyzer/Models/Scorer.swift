@@ -15,7 +15,7 @@ struct Scorer {
         var sentimentScore = 0.0
         tagger.string = text
         
-        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .paragraph, scheme: .sentimentScore) { tag, _ in
+        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .sentence, scheme: .sentimentScore) { tag, _ in
             if let sentimentString = tag?.rawValue, let score = Double(sentimentString) {
                 sentimentScore = score
             }

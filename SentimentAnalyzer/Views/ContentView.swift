@@ -11,11 +11,12 @@ struct ContentView: View {
     @State private var responseText = ""
     @State private var responses = [Response]()
     @State private var scorer = Scorer()
+    @FocusState private var isFocused: Bool
+
     var body: some View {
         NavigationStack {
             VStack{
                 ScrollView {
-                    Text("Sentiment Analyzer").font(.title).fontWeight(.bold)
                     ResponsePieChartView(responses: responses)
                     OverallSentimentSectionView(responses: responses)
 
@@ -27,7 +28,7 @@ struct ContentView: View {
 
                 HStack {
                     TextField(
-                        "Your thoughts on the future of AI",
+                        "Type something in...",
                         text: $responseText,
                         axis: .vertical
                     )
@@ -37,11 +38,14 @@ struct ContentView: View {
                         RoundedRectangle(cornerRadius: 25)
                             .stroke(Color(.systemGray),lineWidth: 1.0)
                     }
+                    .focused($isFocused)
 
                     Button(
-                        "Done"
+                        "Analyze"
                     ) {
-                        onDoneTapper()
+                        withAnimation{
+                            onDoneTapper()
+                        }
                     }
                     .fontWeight(.semibold)
 
@@ -50,6 +54,7 @@ struct ContentView: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
+            .navigationTitle("Sentiment Analyzer").navigationBarTitleDisplayMode(.inline)
         }
         .task {
             for response in Response.sampleResponses {
@@ -63,7 +68,7 @@ private extension ContentView {
     func saveResponse(_ text: String, shouldInsert: Bool = false) {
         let score = scorer.score(text)
         let response = Response(id: UUID().uuidString, text: text, score: score)
-        
+        print("🧪 Text: \(text) → Score: \(score)")
         if shouldInsert {
             responses.insert(response, at: 0)
         } else {
@@ -75,6 +80,7 @@ private extension ContentView {
         guard !responseText.isEmpty else { return }
         saveResponse(responseText, shouldInsert: true)
         responseText = ""
+        isFocused = false
     }
 }
 

@@ -11,6 +11,7 @@ enum Sentiment: String {
     case positive = "Positive"
     case negative = "Negative"
     case moderate = "Moderate"
+    case mixed = "Mixed"
 
     init(_ score: Double) {
         if score > 0.2 {
@@ -30,6 +31,8 @@ enum Sentiment: String {
             return "chevron.down.2"
         case .moderate:
             return "minus"
+        case .mixed:
+            return "equal.circle"
         }
     }
 
@@ -41,6 +44,8 @@ enum Sentiment: String {
             return .red
         case .moderate:
             return .gray
+        case .mixed:
+            return .primary
         }
     }
 }

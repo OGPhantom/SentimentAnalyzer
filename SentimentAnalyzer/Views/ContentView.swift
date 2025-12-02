@@ -4,7 +4,6 @@
 //
 //  Created by Никита Сторчай on 28.11.2025.
 //
-
 import SwiftUI
 
 struct ContentView: View {
@@ -15,72 +14,103 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            VStack{
-                ScrollView {
-                    ResponsePieChartView(responses: responses)
-                    OverallSentimentSectionView(responses: responses)
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(.systemBlue).opacity(0.15),
+                        Color(.systemTeal).opacity(0.10),
+                        Color(.systemPurple).opacity(0.12)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
 
-                    ForEach(responses) { response in
-                        ResponseRowView(response: response)
+                    ScrollView(showsIndicators: false) {
+
+                        VStack(spacing: 24) {
+                            ResponsePieChartView(responses: responses)
+
+                            OverallSentimentSectionView(responses: responses)
+
+                            VStack(spacing: 12) {
+                                ForEach(responses) { response in
+                                    ResponseRowView(response: response)
+                                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                }
+                            }
                             .padding(.horizontal)
-                    }
-                }
-
-                HStack {
-                    TextField(
-                        "Type something in...",
-                        text: $responseText,
-                        axis: .vertical
-                    )
-                    .padding(12)
-                    .padding(.leading, 4)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 25)
-                            .stroke(Color(.systemGray),lineWidth: 1.0)
-                    }
-                    .focused($isFocused)
-
-                    Button(
-                        "Analyze"
-                    ) {
-                        withAnimation{
-                            onDoneTapper()
                         }
+                        .padding(.top, 12)
                     }
-                    .fontWeight(.semibold)
-
-
+                    
+                    inputBar
                 }
-                .padding()
+                .padding(.bottom, 8)
+                .navigationTitle("Sentiment Analyzer")
+                .navigationBarTitleDisplayMode(.large)
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("Sentiment Analyzer").navigationBarTitleDisplayMode(.inline)
         }
         .task {
-            for response in Response.sampleResponses {
-                saveResponse(response)
+            loadSampleResponses()
+        }
+    }
+
+    private var inputBar: some View {
+        HStack(spacing: 12) {
+            TextField("Write your thoughts...", text: $responseText, axis: .vertical)
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ).opacity(0.75), lineWidth: 1)
+                )
+                .focused($isFocused)
+
+            Button {
+                withAnimation(.spring()) { submit() }
+            } label: {
+                Text("Send")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(14)
+                    .background(
+                        LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        )
+                    )
+                    .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 3)
             }
         }
-    }
-}
-
-private extension ContentView {
-    func saveResponse(_ text: String, shouldInsert: Bool = false) {
-        let score = scorer.score(text)
-        let response = Response(id: UUID().uuidString, text: text, score: score)
-        print("🧪 Text: \(text) → Score: \(score)")
-        if shouldInsert {
-            responses.insert(response, at: 0)
-        } else {
-            responses.append(response)
-        }
+        .padding(.horizontal)
     }
 
-    func onDoneTapper() {
+    private func submit() {
         guard !responseText.isEmpty else { return }
-        saveResponse(responseText, shouldInsert: true)
+        let score = scorer.score(responseText)
+        let response = Response(id: UUID().uuidString, text: responseText, score: score)
+        responses.insert(response, at: 0)
         responseText = ""
         isFocused = false
+    }
+
+    private func loadSampleResponses() {
+        for text in Response.sampleResponses {
+            let score = scorer.score(text)
+            let response = Response(id: UUID().uuidString, text: text, score: score)
+            responses.append(response)
+        }
     }
 }
 
